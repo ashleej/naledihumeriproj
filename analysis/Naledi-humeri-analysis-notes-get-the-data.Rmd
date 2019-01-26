@@ -1,0 +1,122 @@
+---
+title: "Notes on H. Naledi Analysis: Get the data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE,
+               warning = FALSE,
+               message = FALSE)
+
+library(tidyverse)
+library(here)
+```
+
+## MeshLab worklflow
+
+1. Open model
+2. Click ‘pick points’ button
+3. Right-click to add points, click ‘not editing’ button to rotate and move model
+4. In the pick points ‘form’ window, click Save to save points into a pp file (XML)
+
+## Getting data from Google Drive
+
+Our data are stored on Google Drive. We can access it for analysis using R
+
+```{r eval = FALSE}
+library(googledrive)
+
+# here is the ID of our g-drive data folder
+data_folder_on_googl_drv_url <- "1IipPeG0bQF92DttpSiCZyiv1H_95UENP"
+
+# get the IDs for each pp file on g-drive
+data_files_on_googl_drv <- 
+  drive_ls(as_id(data_folder_on_googl_drv_url))
+
+# download them to our local folder
+pwalk(data_files_on_googl_drv,
+    ~drive_download(as_id(..2), # refer to column 2 for the ID
+                    # refer to column 1 for the name
+                    path = here("analysis", "data", "raw-data", ..1), 
+                    overwrite = TRUE))
+```
+
+
+## Importing Meshlab data into R
+
+Here's the function for reading in pp files
+
+```{r}
+# https://rgriff23.github.io/2017/05/07/read-meshlab-pickedpoints.html
+# function to read Meshlab *.pp files into R
+read.pp <- function (file) {
+	file <- readLines(file)
+	lines <- file[grep("point", file)]
+	x <- strsplit(lines, "x=\"")
+	y <- strsplit(lines, "y=\"")
+	z <- strsplit(lines, "z=\"")
+	name <- strsplit(lines, "name=\"")
+	mat <- matrix(0, length(x), 3)
+	r <- c()
+	for (i in 1:length(lines)) {
+		mat[i,1] <- as.numeric(strsplit(x[[i]][2], "\"")[[1]][1])
+		mat[i,2] <- as.numeric(strsplit(y[[i]][2], "\"")[[1]][1])
+		mat[i,3] <- as.numeric(strsplit(z[[i]][2], "\"")[[1]][1])
+		r <- c(r, strsplit(name[[i]][2], "\"")[[1]][1])
+	}
+	
+  df <- as_tibble(mat, .name_repair = make.names )
+	df[ ,ncol(df) + 1] <- r 
+	colnames(df) <- c( "x","y","z","landmark")
+	df <- df[ , c(ncol(df), 1:ncol(df)-1) ]
+	return(df)
+}
+```
+
+Here we read in all the pp files that we downloaded from g-drive 
+
+
+```{r}
+# get list of the local data files
+local_data_files <- 
+  list.files(path = here("analysis", "data", "raw-data"),
+             pattern = ".pp$",
+             full.names = TRUE)
+
+# read these into R, and assign names to each data frame
+nested_df_of_pp_data <- 
+  map(local_data_files, 
+      read.pp) %>% 
+  set_names(basename(local_data_files)) %>% 
+  bind_rows(.id = 'specimen') %>% 
+  mutate(landmark = as.numeric(landmark)) %>% 
+  nest(-specimen)
+
+# write an object we can reuse
+saveRDS(-, 
+        here("analysis", "data", "derived-data", 'nested_df_of_pp_data.rds'))
+
+```
+
+Take a quick look at one specimen:
+
+
+```{r}
+library(plotly)
+nested_df_of_pp_data %>% 
+  filter(specimen == 'austro_afarensis_al-137-48a_21-landmarks.pp') %>% 
+  unnest() %>% 
+  plot_ly(.,
+         x = ~x, 
+         y = ~y, 
+         z = ~z, 
+         color = ~landmark) %>%
+  add_markers() 
+```
+
+One point is out of place here, we may need to exclude it. 
+
+
+
+

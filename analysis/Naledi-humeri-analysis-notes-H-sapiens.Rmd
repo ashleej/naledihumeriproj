@@ -19,7 +19,7 @@ Assume that we have downloaded all the files from g-drive, let's check the H. sa
 ```{r}
 # get list of the local data files that we prepared earlier
 nested_df_of_pp_data <-  
-  read_rds(here("data", "derived-data", "nested_df_of_pp_data.rds"))
+  read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds"))
 
 # read these into R, and assign names to each data frame
 nested_df_of_pp_data_H_sapiens <- 
@@ -30,15 +30,16 @@ nested_df_of_pp_data_H_sapiens <-
 Let's try to look at all of them
 
 ```{r}
-list_of_plots_H_sapiens <- 
-map(nested_df_of_pp_data_H_sapiens$data, 
-  ~plot_ly(.x,
+list_of_plots_H_sapiens  <- 
+nested_df_of_pp_data_H_sapiens %>% 
+  mutate(plotly = map2(data, specimen, ~plot_ly(.x,
          x = .x$x, 
          y = .x$y, 
          z = .x$z, 
          color = .x$landmark) %>%
-  add_markers())
+  add_markers() %>%
+  layout(scene = list(xaxis=list(title = .y)))))
 
-htmltools::tagList(list_of_plots_H_sapiens)
+htmltools::tagList(list_of_plots_H_sapiens$plotly)
 ```
 
