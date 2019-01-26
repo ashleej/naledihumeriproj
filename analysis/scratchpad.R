@@ -12,11 +12,88 @@
 
 # We can see here  that `homo_sapiens_01_21-landmarks.pp` is the problem, so let's drop it, and take another look.     
 
-nested_df_of_pp_data_H_sapiens
+# keep only specimens with 21 landmarks,
+# and ensure landmarks are in order, 
+# and convert to array
+nested_df_of_pp_data_H_sapiens_21_lmk <- 
+nested_df_of_pp_data_H_sapiens %>%
+  mutate(n_row = map_int(data, nrow)) %>% 
+  filter(n_row == 21) %>% 
+  mutate(data = map(data, ~arrange(.x, landmark) %>% 
+                           select(-landmark))) %>% 
+  mutate(data_array = map(data, simplify2array))
+
+L <-  nested_df_of_pp_data_H_sapiens_21_lmk$data_array
+three_d_array <- array(unlist(L), 
+                       dim = c(nrow(L[[1]]), 
+                               ncol(L[[1]]), 
+                               length(L)))
+      
+# GPA
+library(geomorph)
+
+# Obtain Procrustes coordinates
+H_sapiens_gpa <-gpagen(three_d_array)
+summary(H_sapiens_gpa)
+plot(H_sapiens_gpa)
+
+# Convert coordinates to two-dimensional matrix
+coords2d <- two.d.array(H_sapiens_gpa$coords)
+
+# Calculate consensus and flatten to single vectors
+consensus <- apply(H_sapiens_gpa$coords, c(1,2), mean)
+consensusvec <- apply(coords2d, 2, mean)
+
+# Calculate Procrustes residuals (Procrustes coordinates - consensus)
+resids <- t(t(coords2d)-consensusvec)
+
+# Calculate covariance matrix
+P <- cov(resids)
+
+# Calculate eigenvector and eigenvalues with SVD
+pca.stuff <- svd(P)
+eigenvalues <- pca.stuff$d
+eigenvectors <- pca.stuff$u
+
+# Calculate PCA scores
+scores <- resids%*%eigenvectors
+
+plotTangentSpace(three_d_array)
+plot(scores[,1:2],asp=1, pch=20,cex=2)
 
 
 
 
+#--------------------------------------
+# all!
+nested_df_of_pp_data_21_lmk <- 
+nested_df_of_pp_data %>%
+  mutate(n_row = map_int(data, nrow)) %>% 
+  filter(n_row == 21) %>% 
+  mutate(data = map(data, ~arrange(.x, landmark) %>% 
+                      select(-landmark))) %>% 
+  mutate(data_array = map(data, simplify2array))
+
+L <-  nested_df_of_pp_data_21_lmk$data_array
+three_d_array <- array(unlist(L), 
+                       dim = c(nrow(L[[1]]), 
+                               ncol(L[[1]]), 
+                               length(L)))
+
+# GPA
+library(geomorph)
+
+# Obtain Procrustes coordinates
+all_gpa <-gpagen(three_d_array)
+summary(all_gpa)
+plot(all_gpa)
+
+# https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12035
+# https://www.sciencedirect.com.sci-hub.tw/science/article/pii/S0047248415000512?via%3Dihub
+
+
+
+#--------------------------------------
 
 # take a look with the bone
 library(geomorph)
