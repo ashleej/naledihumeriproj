@@ -1,7 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 naledihumeriproj [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ashleej/naledihumeriproj/master?urlpath=rstudio)
-
 ================
 
 The goal of naledihumeriproj is to ...
