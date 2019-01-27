@@ -80,6 +80,8 @@ three_d_array <- array(unlist(L),
                                ncol(L[[1]]), 
                                length(L)))
 
+IDs <- nested_df_of_pp_data_21_lmk$specimen
+
 # GPA
 library(geomorph)
 
@@ -88,8 +90,39 @@ all_gpa <-gpagen(three_d_array)
 summary(all_gpa)
 plot(all_gpa)
 
+pca.lands <- plotTangentSpace(all_gpa$coords, label=TRUE)
+
+plot(pca.lands$pc.scores[,1:2],pch=15,xlab="PC1",ylab="PC2")
+text(pca.lands$pc.scores[,1:2],IDs,pos=4,cex=.5)
+
 # https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12035
 # https://www.sciencedirect.com.sci-hub.tw/science/article/pii/S0047248415000512?via%3Dihub
+
+library(scatterplot3d)
+scatterplot3d(pca.lands$pc.scores[,1:3])
+
+# The shape differences between group mean can be visualized graphically, by obtaining the average landmark coordinates for each group and the overall mean, and plotting the differences as thin‐plate spline transformation grids:
+ref <- mshape(all_gpa$coords)
+
+gp1.mn <- mshape(all_gpa$coords[,,1:20])
+
+plotRefToTarget(ref,gp1.mn,mag=2) # need links?
+
+
+physignal(plethspecies$phy,Y.gpa$coords,iter=99)
+
+#------------------------------------------------
+
+# with Momocs
+library(Momocs)
+
+all_data_ldk <- 
+  Ldk(coo=three_d_array %>% a2l,
+      fac= data.frame( ID =  IDs))
+
+fgProcrustes(all_data_ldk) # nope
+
+
 
 
 
