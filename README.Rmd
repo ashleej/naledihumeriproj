@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-# naledihumeriproj
+# naledihumeriproj [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ashleej/naledihumeriproj/master?urlpath=rstudio)
 
 The goal of naledihumeriproj is to ...
 
