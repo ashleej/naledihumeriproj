@@ -94,7 +94,7 @@ nested_df_of_pp_data <-
   nest(-specimen)
 
 # write an object we can reuse
-saveRDS(-, 
+saveRDS(nested_df_of_pp_data, 
         here("analysis", "data", "derived-data", 'nested_df_of_pp_data.rds'))
 
 ```
