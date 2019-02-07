@@ -108,11 +108,13 @@ nested_df_of_pp_data %>%
   filter(specimen == 'austro_afarensis_al-137-48a_21-landmarks.pp') %>% 
   unnest() %>% 
   plot_ly(.,
-         x = ~x, 
-         y = ~y, 
-         z = ~z, 
-         color = ~landmark) %>%
-  add_markers() 
+         x = .$x, 
+         y = .$y, 
+         z = .$z, 
+         color = .$landmark,
+         marker = list(symbol = 'circle'), 
+         text = ~paste0("landmark: ", .$landmark)) %>%
+         add_markers() 
 ```
 
 One point is out of place here, we may need to exclude it. 

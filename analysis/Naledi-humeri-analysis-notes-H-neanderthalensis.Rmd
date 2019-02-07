@@ -32,12 +32,15 @@ Let's try to look at all of them
 ```{r}
 list_of_plots_H_neanderthalensis  <- 
 nested_df_of_pp_data_H_neanderthalensis %>% 
-  mutate(plotly = map2(data, specimen, ~plot_ly(.x,
+  mutate(plotly = map2(data, specimen, 
+                       ~plot_ly(.x,
          x = .x$x, 
          y = .x$y, 
          z = .x$z, 
-         color = .x$landmark) %>%
-  add_markers() %>%
+         color = .x$landmark,
+         marker = list(symbol = 'circle'), 
+         text = ~paste0("landmark: ", .x$landmark)) %>%
+         add_markers() %>% 
   layout(scene = list(xaxis=list(title = .y)))))
 
 htmltools::tagList(list_of_plots_H_neanderthalensis$plotly)
