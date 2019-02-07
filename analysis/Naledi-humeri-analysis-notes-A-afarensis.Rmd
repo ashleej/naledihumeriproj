@@ -1,0 +1,44 @@
+---
+title: 'Notes on H. Naledi Analysis: A. afarensis'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE,
+               warning = FALSE,
+               message = FALSE)
+
+library(tidyverse)
+library(here)
+library(plotly)
+```
+
+Assume that we have downloaded all the files from g-drive, let's check the A. afarensis data
+
+```{r}
+# get list of the local data files that we prepared earlier
+nested_df_of_pp_data <-  
+  read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds"))
+
+# read these into R, and assign names to each data frame
+nested_df_of_pp_data_A_afarensis <- 
+  nested_df_of_pp_data %>% 
+  filter(str_detect(specimen, "afarensis"))
+```
+
+Let's try to look at all of them
+
+```{r}
+list_of_plots_A_afarensis  <- 
+nested_df_of_pp_data_A_afarensis %>% 
+  mutate(plotly = map2(data, specimen, ~plot_ly(.x,
+         x = .x$x, 
+         y = .x$y, 
+         z = .x$z, 
+         color = .x$landmark) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis=list(title = .y)))))
+
+htmltools::tagList(list_of_plots_A_afarensis$plotly)
+```
