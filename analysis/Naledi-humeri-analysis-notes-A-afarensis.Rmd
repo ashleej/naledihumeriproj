@@ -9,9 +9,13 @@ opts_chunk$set(echo = TRUE,
                warning = FALSE,
                message = FALSE)
 
-library(tidyverse)
 library(here)
 library(plotly)
+library(readr)
+library(here)
+library(tibble)
+library(stringr)
+library(purrr)
 ```
 
 Assume that we have downloaded all the files from g-drive, let's check the A. afarensis data
