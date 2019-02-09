@@ -117,10 +117,31 @@ physignal(plethspecies$phy,Y.gpa$coords,iter=99)
 library(Momocs)
 
 all_data_ldk <- 
-  Ldk(coo=three_d_array %>% a2l,
-      fac= data.frame( ID =  IDs))
+  Ldk(coo=all_specimens_3d_array %>% a2l,
+      fac= data.frame( ID =  names(L)))
 
-fgProcrustes(all_data_ldk) # nope
+fgp <- fgProcrustes(all_data_ldk) # nope
+pile(fgp)
+
+#------------------------------------------------
+
+# with shapes
+library(shapes)
+out<-procGPA(all_specimens_3d_array)
+
+
+shapes_plot <- data.frame(PC1 = out$rawscores[,1], 
+                          PC2 = out$rawscores[,2], 
+                          taxa = gp)
+
+library(ggplot2)
+ggplot(shapes_plot, 
+       aes(x = PC1, 
+           y = PC2, 
+           color=taxa)) + 
+  geom_point(size = 5) + 
+  theme_bw()
+
 
 
 

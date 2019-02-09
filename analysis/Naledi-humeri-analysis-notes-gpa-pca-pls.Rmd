@@ -16,6 +16,8 @@ library(here)
 library(tibble)
 library(stringr)
 library(purrr)
+library(tidyr)
+library(dplyr)
 ```
 
 Assume that we have downloaded all the files from g-drive, let's get all except the ones we have identified with dodgy landmarks
@@ -72,31 +74,309 @@ nale_array <- L %>% keep(names(.) == 'naledi') %>%  list_to_3d_array
 
 # compute GPA for each group as a quality check
 
-library(geomorph)
+library(geomorph) # wont work in rstudio.cloud
 
 # Obtain Procrustes coordinates and inspect
 
 # gorilla
 gori_array_gpa <- gpagen(gori_array)
 summary(gori_array_gpa)
-plot(gori_array_gpa)
 
 # afarensis
 afar_array_gpa <- gpagen(afar_array)
 summary(afar_array_gpa)
-plot(afar_array_gpa)
 
 # neanderthals
 nean_array_gpa <- gpagen(nean_array)
 summary(nean_array_gpa)
-plot(nean_array_gpa)
 
 # sapiens
 sapi_array_gpa <- gpagen(sapi_array)
 summary(sapi_array_gpa)
-plot(sapi_array_gpa)
+
+# naledi
+nale_array_gpa <- gpagen(nale_array)
+summary(nale_array_gpa)
+```
+
+Let's have a look at the 3d plots of the GPA coords. We need to find the specimens that have points that don't cluster tightly with the GPA and exclude those specimens from the sample. 
+
+```{r}
+# function to reshape the data for plotly
+three_d_array_to_data_frame <- function(three_d_array, n = 21){
+  
+  # storage list
+  the_list <- vector('list', length = dim(three_d_array)[3])
+  
+  # do extraction from array
+  for(i in seq_len(dim(three_d_array)[3])){
+    the_list[[i]] <- three_d_array[ , , i]
+  }
+  
+  # make into data frame
+  df1 <- data.frame(do.call('rbind', the_list))
+  
+  # label landmarks
+  df1$landmark <- rep(1:n, dim(three_d_array)[3])
+  
+  df1
+  
+}
+```
+
+```{r}
+library(plotly)
+
+# gorilla
+gori_array_gpa_coords_df <- 
+  three_d_array_to_data_frame(gori_array_gpa$coords )
+
+plot_ly(gori_array_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+Gorilla: problems with landmark 1, 5, and 6
+
+```{r}
+# afarensis
+afar_array_gpa_coords_df <- 
+  three_d_array_to_data_frame(afar_array_gpa$coords )
+
+plot_ly(afar_array_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+Afarensis:  problems with landmark 13
+
+```{r}
+# neanderthals
+nean_array_gpa_coords_df <- 
+  three_d_array_to_data_frame(nean_array_gpa$coords )
+
+plot_ly(nean_array_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+Neanderthals: all look good!
+
+```{r}
+# sapiens
+sapi_array_gpa_coords_df <- 
+  three_d_array_to_data_frame(sapi_array_gpa$coords )
+
+plot_ly(sapi_array_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+Sapiens: all look good!
+
+```{r}
+# sapiens
+nale_array_gpa_coords_df <- 
+  three_d_array_to_data_frame(nale_array_gpa$coords )
+
+plot_ly(nale_array_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+Naledi: problems with lanmdmark 7
+
+So, how about we drop these landmarks from all and try the GPA again?
+1, 5, 6, 7, 13 
+
+```{r}
+
+landmarks_to_drop <- c(1, 5, 6, 7, 13)
+n_after_dropped <- 21 - length(landmarks_to_drop) 
+
+# drop these landmarks from all specimens 
+L_dropped_some_landmarks <- 
+  map(L, ~.x %>% 
+            as.data.frame %>% 
+            slice(-landmarks_to_drop))
+
+# use this function to make a set of 3d arrays, one for each genus
+gori_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'gorilla') %>%  list_to_3d_array
+afar_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'afarensis') %>%  list_to_3d_array
+nean_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'neanderthalensis') %>%  list_to_3d_array
+sapi_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'sapiens') %>%  list_to_3d_array
+nale_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'naledi') %>%  list_to_3d_array
+
+# compute GPA for each group as a quality check
+
+library(geomorph) # wont work in rstudio.cloud
+
+# Obtain Procrustes coordinates and inspect
+
+# gorilla
+gori_array_dropped_gpa <- gpagen(gori_array_dropped)
+
+# afarensis
+afar_array_dropped_gpa <- gpagen(afar_array_dropped)
+
+# neanderthals
+nean_array_dropped_gpa <- gpagen(nean_array_dropped)
+
+# sapiens
+sapi_array_dropped_gpa <- gpagen(sapi_array_dropped)
+
+# naledi
+nale_array_dropped_gpa <- gpagen(nale_array_dropped)
+```
+
+Take another look after we have removed some problem landmarks:
+
+```{r}
+library(plotly)
+
+# gorilla
+gori_array_dropped_gpa_coords_df <- 
+  three_d_array_to_data_frame(gori_array_dropped_gpa$coords, 
+                              n = n_after_dropped)
+
+plot_ly(gori_array_dropped_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+```{r}
+# afarensis
+afar_array_dropped_gpa_coords_df <- 
+  three_d_array_to_data_frame(afar_array_dropped_gpa$coords, 
+                              n = n_after_dropped)
+
+plot_ly(afar_array_dropped_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+```{r}
+# neanderthals
+nean_array_dropped_gpa_coords_df <- 
+  three_d_array_to_data_frame(nean_array_dropped_gpa$coords, 
+                              n = n_after_dropped)
+
+plot_ly(nean_array_dropped_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+```{r}
+# sapiens
+sapi_array_dropped_gpa_coords_df <- 
+  three_d_array_to_data_frame(sapi_array_dropped_gpa$coords, 
+                              n = n_after_dropped)
+
+plot_ly(sapi_array_dropped_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+```{r}
+# naledi
+nale_array_dropped_gpa_coords_df <- 
+  three_d_array_to_data_frame(nale_array_dropped_gpa$coords, 
+                              n = n_after_dropped)
+
+plot_ly(nale_array_dropped_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+Now that we have done a little bit of quality control on the individual taxa, let's do the GPA on them all combined, as one sample.
+
+We can also drop some more points that are very far from the GPA clusters here: 
+
+```{r}
+additional_landmarks_to_drop <- c(4, 9, 10, 11, 12, 15)
+landmarks_to_drop_second <-  unique(c(landmarks_to_drop, additional_landmarks_to_drop))
+n_after_dropped_second <-  21 - length(landmarks_to_drop_second) 
+
+# drop these landmarks from all specimens 
+L_dropped_some_landmarks_second <- 
+  map(L, ~.x %>% 
+            as.data.frame %>% 
+            slice(-landmarks_to_drop_second))
+# compute GPA
+all_specimens_3d_array <- list_to_3d_array(L_dropped_some_landmarks_second)
+all_gpa <- gpagen(all_specimens_3d_array)
+
+# convert to data frame
+all_gpa_gpa_coords_df <- 
+  three_d_array_to_data_frame(all_gpa$coords, 
+                              n = n_after_dropped_second)
+
+# inspect 3d plot
+plot_ly(all_gpa_gpa_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+```
+
+Let's try the PCA
+
+```{r}
+gp <- as.factor(names(L_dropped_some_landmarks_second))
+
+# with the shapes pkg
+library(shapes)
+out<-procGPA(all_specimens_3d_array)
+
+
+shapes_plot <- data.frame(PC1 = out$rawscores[,1], 
+                          PC2 = out$rawscores[,2], 
+                          taxa = gp)
+
+library(ggplot2)
+ggplot(shapes_plot, 
+       aes(x = PC1, 
+           y = PC2, 
+           color=taxa)) + 
+  geom_point(size = 5) + 
+  theme_bw()
+
 
 ```
+
+
+
 
 
 
