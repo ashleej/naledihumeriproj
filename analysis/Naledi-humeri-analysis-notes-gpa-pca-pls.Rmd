@@ -1,5 +1,5 @@
 ---
-title: 'Notes on H. Naledi Analysis: G. gorilla'
+title: 'Notes on H. Naledi Analysis: GPA, PCA and PLS'
 output: html_document
 ---
 
