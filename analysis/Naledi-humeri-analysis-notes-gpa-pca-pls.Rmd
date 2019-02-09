@@ -1,0 +1,103 @@
+---
+title: 'Notes on H. Naledi Analysis: G. gorilla'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE,
+               warning = FALSE,
+               message = FALSE)
+
+library(here)
+library(plotly)
+library(readr)
+library(here)
+library(tibble)
+library(stringr)
+library(purrr)
+```
+
+Assume that we have downloaded all the files from g-drive, let's get all except the ones we have identified with dodgy landmarks
+
+```{r}
+# get list of the local data files that we prepared earlier
+nested_df_of_pp_data <-  
+  read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds"))
+
+bad_specimens <- 
+  read_table("exclude-these.md", col_names = 'bad_specimens')
+
+# read these into R, and assign names to each data frame
+nested_df_of_pp_data_good_ones <- 
+  nested_df_of_pp_data %>% 
+  filter(!specimen %in% bad_specimens) %>% 
+  separate(specimen, 
+           into = c('genus', 'species', str_glue('X{1:7}')), 
+           by = "_")
+```
+
+Let's do the Generalised Procrustes Analysis, first we do it for each taxa to see if there are any problems:
+
+```{r}
+nested_df_of_pp_data_good_ones_arrays_21_landmarks <- 
+nested_df_of_pp_data_good_ones %>% 
+  select(species, data) %>% 
+  # drop specimens that don't have exactly 21 landmarks
+   mutate(n_row = map_int(data, nrow)) %>% 
+  filter(n_row == 21) %>% 
+  # convert data frame to array for the geomorph pkg
+  mutate(data = map(data, ~arrange(.x, landmark) %>% 
+                           select(-landmark))) %>% 
+  mutate(data_array = map(data, simplify2array))
+
+# convert to 3d array
+L <-  nested_df_of_pp_data_good_ones_arrays_21_landmarks$data_array
+names(L) <-  nested_df_of_pp_data_good_ones_arrays_21_landmarks$species
+
+# our function to convert a list to a 3d array
+list_to_3d_array <- function(the_list){
+  array(unlist(the_list), 
+         dim = c(nrow(the_list[[1]]), 
+         ncol(the_list[[1]]), 
+         length(the_list)))
+}
+
+# use this function to make a set of 3d arrays, one for each genus
+gori_array <- L %>% keep(names(.) == 'gorilla') %>%  list_to_3d_array
+afar_array <- L %>% keep(names(.) == 'afarensis') %>%  list_to_3d_array
+nean_array <- L %>% keep(names(.) == 'neanderthalensis') %>%  list_to_3d_array
+sapi_array <- L %>% keep(names(.) == 'sapiens') %>%  list_to_3d_array
+nale_array <- L %>% keep(names(.) == 'naledi') %>%  list_to_3d_array
+
+# compute GPA for each group as a quality check
+
+library(geomorph)
+
+# Obtain Procrustes coordinates and inspect
+
+# gorilla
+gori_array_gpa <- gpagen(gori_array)
+summary(gori_array_gpa)
+plot(gori_array_gpa)
+
+# afarensis
+afar_array_gpa <- gpagen(afar_array)
+summary(afar_array_gpa)
+plot(afar_array_gpa)
+
+# neanderthals
+nean_array_gpa <- gpagen(nean_array)
+summary(nean_array_gpa)
+plot(nean_array_gpa)
+
+# sapiens
+sapi_array_gpa <- gpagen(sapi_array)
+summary(sapi_array_gpa)
+plot(sapi_array_gpa)
+
+```
+
+
+
+
