@@ -4,3 +4,6 @@ data
 .RData
 .Ruserdata
 .httr-oauth
+naledihumeriproj.Rcheck/
+naledihumeriproj*.tar.gz
+naledihumeriproj*.tgz
