@@ -9,7 +9,8 @@ opts_chunk$set(echo = TRUE,
                warning = FALSE,
                message = FALSE)
 
-library(tidyverse)
+library(purrr)
+library(tibble)
 library(here)
 ```
 
