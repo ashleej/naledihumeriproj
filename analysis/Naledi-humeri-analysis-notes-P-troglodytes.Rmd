@@ -1,5 +1,7 @@
 ---
-title: 'Notes on H. Naledi Analysis: H. naledi'
+title: 'Notes on H. Naledi Analysis: P. troglodytes'
+author: "Ashlee Breedlove"
+date: "5/13/2019"
 output: html_document
 ---
 
@@ -18,7 +20,7 @@ library(stringr)
 library(purrr)
 ```
 
-Assume that we have downloaded all the files from g-drive, let's check the H. naledi data
+Assume that we have downloaded all the files from g-drive, let's check the P. troglodytes data
 
 ```{r}
 # get list of the local data files that we prepared earlier
@@ -26,16 +28,16 @@ nested_df_of_pp_data <-
   read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds"))
 
 # read these into R, and assign names to each data frame
-nested_df_of_pp_data_H_naledi <- 
+nested_df_of_pp_data_P_troglodytes <- 
   nested_df_of_pp_data %>% 
-  filter(str_detect(specimen, "naledi"))
+  filter(str_detect(specimen, "troglodytes"))
 ```
 
 Let's try to look at all of them
 
 ```{r}
-list_of_plots_H_naledi  <- 
-nested_df_of_pp_data_H_naledi %>% 
+list_of_plots_P_troglodytes  <- 
+nested_df_of_pp_data_P_troglodytes %>% 
   mutate(plotly = map2(data, specimen, 
                        ~plot_ly(.x,
          x = .x$x, 
@@ -47,12 +49,4 @@ nested_df_of_pp_data_H_naledi %>%
          add_markers() %>% 
   layout(scene = list(xaxis=list(title = .y)))))
 
-htmltools::tagList(list_of_plots_H_naledi$plotly)
-
-# these landmarks need to be renamed to NoData
-# homo_naledi_101-283_21-landmarks-t2.pp: 1, 2, 4, 15-18, 21
-# homo_naledi_101-1240_21-landmarks-t2.pp: 2-4, 7-21
-# homo_naledi_101-466_21-landmarks-t2.pp: 3-5, 15-21
-
-```
-
+htmltools::tagList(list_of_plots_P_troglodytes$plotly)

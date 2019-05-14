@@ -1,6 +1,49 @@
-austro_afarensis_al-137-48a_21-landmarks.pp
-gorilla_gorilla_167355m_21-landmarks.pp
-homo_naledi_U-W-101-031_21-landmarks.pp
-gorilla_gorilla_167336_21-landmarks.pp
+# to exclude from analysis
+# these are the old landmarks
 
+homo_sapiens_01_21-landmarks.pp	
+homo_sapiens_hss-98-117f-r_21-landmarks.pp	
+homo_sapiens_hss-98-168am-r_21-landmarks.pp	
+homo_sapiens_hss-98-168m-r_21-landmarks.pp	
+homo_sapiens_hss-98-183m-r_21-landmarks.pp	
+homo_sapiens_hss-98-187m-r_21-landmarks.pp	
+homo_sapiens_hss-98-193f-r_21-landmarks.pp	
+homo_sapiens_hss-98-298m-r_21-landmarks.pp	
+homo_sapiens_hss-98-308m-r_21-landmarks.pp	
+homo_sapiens_hss-98-316f-r_21-landmarks.pp	
+homo_sapiens_hss-98-335f-r_21-landmarks.pp	
+homo_sapiens_hss-98-355m-r_21-landmarks.pp	
+homo_sapiens_hss-98-71m-r_21-landmarks.pp	
+homo_sapiens_hss-98-88f-r_21-landmarks.pp	
+homo_neanderthalensis_krapina-160-humerus_21-landmarks.pp	
+homo_neanderthalensis_krapina-162-humerus_21-landmarks.pp	
+homo_neanderthalensis_regourdou1-repaired_21-landmarks.pp	
+homo_naledi_U-W-101-466_21-landmarks.pp	
+homo_naledi_U-W-101-283_21-landmarks.pp	
+homo_naledi_U-W-101-1240_21-landmarks.pp
+homo_naledi_U-W-101-031_21-landmarks.pp	
+homo_naledi_U-W-101-031_21-landmarks_take2.pp	
+gorilla_gorilla_99-9425M-R_21-landmarks.pp	
+gorilla_gorilla_99-1-20255F-R_21-landmarks.pp	
+gorilla_gorilla_99-1-1578F-R_21-landmarks.pp	
+gorilla_gorilla_99-1-1577M-R_21-landmarks.pp	
+gorilla_gorilla_81652-r_21-landmarks.pp	
+gorilla_gorilla_81651-r_21-landmarks.pp	
+gorilla_gorilla_69398-extra_21-landmarks.pp	
+gorilla_gorilla_54356_21-landmarks.pp	
+gorilla_gorilla_54355m_21-landmarks.pp	
+gorilla_gorilla_54355-m_21-landmarks.pp	
+gorilla_gorilla_214107_21-landmarks.pp	
+gorilla_gorilla_201471m_21-landmarks.pp	
+gorilla_gorilla_201460_21-landmarks.pp	
+gorilla_gorilla_167355m_21-landmarks.pp	
+gorilla_gorilla_167347f_21-landmarks.pp	
+gorilla_gorilla_167340f_21-landmarks.pp	
+gorilla_gorilla_167339f_21-landmarks.pp	
+gorilla_gorilla_167338m_21-landmarks.pp	
+gorilla_gorilla_167336_21-landmarks.pp	
+gorilla_gorilla_1459ca-m_21-landmarks.pp	
+austro_afarensis_al-332-1_21-landmarks.pp	
+austro_afarensis_al-288-1s_21-landmarks.pp	
+austro_afarensis_al-137-48a_21-landmarks.pp	
 	
