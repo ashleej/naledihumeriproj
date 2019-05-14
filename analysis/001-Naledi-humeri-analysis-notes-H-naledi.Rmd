@@ -28,7 +28,17 @@ nested_df_of_pp_data <-
 # read these into R, and assign names to each data frame
 nested_df_of_pp_data_H_naledi <- 
   nested_df_of_pp_data %>% 
-  filter(str_detect(specimen, "naledi"))
+  filter(str_detect(specimen, "naledi.*t2"))
+
+# these landmarks need to be renamed to NoData
+# homo_naledi_101-283_21-landmarks-t2.pp: 1, 2, 4, 15-18, 21
+nested_df_of_pp_data_H_naledi[[2]][[2]]
+# homo_naledi_101-1240_21-landmarks-t2.pp: 2-4, 7-21
+nested_df_of_pp_data_H_naledi[[2]][[1]]
+# homo_naledi_101-466_21-landmarks-t2.pp: 3-5, 15-21
+nested_df_of_pp_data_H_naledi[[2]][[3]]
+
+
 ```
 
 Let's try to look at all of them
@@ -48,11 +58,6 @@ nested_df_of_pp_data_H_naledi %>%
   layout(scene = list(xaxis=list(title = .y)))))
 
 htmltools::tagList(list_of_plots_H_naledi$plotly)
-
-# these landmarks need to be renamed to NoData
-# homo_naledi_101-283_21-landmarks-t2.pp: 1, 2, 4, 15-18, 21
-# homo_naledi_101-1240_21-landmarks-t2.pp: 2-4, 7-21
-# homo_naledi_101-466_21-landmarks-t2.pp: 3-5, 15-21
 
 ```
 

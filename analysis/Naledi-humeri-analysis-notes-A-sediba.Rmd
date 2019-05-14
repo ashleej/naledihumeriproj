@@ -1,7 +1,5 @@
 ---
 title: "Notes on H. Naledi Analysis: A. sediba"
-author: "Ashlee Breedlove"
-date: "5/13/2019"
 output: html_document
 ---
 
@@ -30,7 +28,7 @@ nested_df_of_pp_data <-
 # read these into R, and assign names to each data frame
 nested_df_of_pp_data_A_sediba <- 
   nested_df_of_pp_data %>% 
-  filter(str_detect(specimen, "sediba"))
+  filter(str_detect(specimen, "sediba.*t2"))
 ```
 
 Let's try to look at all of them

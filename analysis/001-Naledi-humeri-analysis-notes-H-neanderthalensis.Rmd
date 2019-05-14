@@ -28,7 +28,7 @@ nested_df_of_pp_data <-
 # read these into R, and assign names to each data frame
 nested_df_of_pp_data_H_neanderthalensis <- 
   nested_df_of_pp_data %>% 
-  filter(str_detect(specimen, "neanderthalensis"))
+  filter(str_detect(specimen, "neanderthalensis.*t2"))
 ```
 
 Let's try to look at all of them
