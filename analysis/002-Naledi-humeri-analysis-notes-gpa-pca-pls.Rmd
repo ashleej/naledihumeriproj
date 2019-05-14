@@ -28,7 +28,7 @@ nested_df_of_pp_data <-
   read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds"))
 
 bad_specimens <- 
-  read_table("exclude-these.md", col_names = 'bad_specimens')
+  read_table(here("analysis", "exclude-these.md"), col_names = 'bad_specimens')
 
 # read these into R, and assign names to each data frame
 nested_df_of_pp_data_good_ones <- 
@@ -363,13 +363,18 @@ plot_ly(all_gpa_gpa_coords_df,
 Let's try the PCA
 
 ```{r}
+# we have 10 landmarks per specimen now
 gp <- as.factor(names(L_dropped_some_landmarks_second))
 
 # with the shapes pkg
+# Generalised Procrustes analysis & PCA
 library(shapes)
-out<-procGPA(all_specimens_3d_array)
+out <- procGPA(all_specimens_3d_array) # 10 landmarks, 3 dimensions, 40 specimens
 
+# The default plot for the 3D PCA is a plot of the mean shape, with vectors drawn to the mean + 3sd 
+# shapepca(out)
 
+# Here we plot the first two principal components 
 shapes_plot <- data.frame(PC1 = out$rawscores[,1], 
                           PC2 = out$rawscores[,2], 
                           taxa = gp)
@@ -381,9 +386,30 @@ ggplot(shapes_plot,
            color=taxa)) + 
   geom_point(size = 5) + 
   theme_bw()
+```
 
+How to interpret the PCA output?
+
+```{r}
+
+pca_3 <- 
+out$rawscores %>% 
+  as_tibble() %>% 
+  mutate(specimen = gp) %>% 
+  select(specimen, 1:4) 
+
+plot_ly(pca_3,
+        x = ~PC1,
+        y = ~PC2,
+        z = ~PC3,
+        text = ~paste('Specimen: ', specimen)) %>% 
+   add_markers()
+  
+  
+  
 
 ```
+
 
 
 
