@@ -18,6 +18,7 @@ library(stringr)
 library(purrr)
 library(tidyr)
 library(dplyr)
+library(geomorph) # wont work in rstudio.cloud
 ```
 
 Assume that we have downloaded all the files from g-drive, let's get all except the ones we have identified with dodgy landmarks
@@ -25,7 +26,9 @@ Assume that we have downloaded all the files from g-drive, let's get all except 
 ```{r}
 # get list of the local data files that we prepared earlier
 nested_df_of_pp_data <-  
-  read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds"))
+  read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds")) %>% 
+  filter(!specimen %in% c("homo_naledi_U-W-101-031_21-landmarks.pp", 
+                          "homo_naledi_U-W-101-466_21-landmarks.pp"))
 
 bad_specimens <- 
   read_table(here("analysis", "exclude-these.md"), col_names = 'bad_specimens')
@@ -65,6 +68,27 @@ list_to_3d_array <- function(the_list){
          length(the_list)))
 }
 
+# function to reshape the data for plotly
+three_d_array_to_data_frame <- function(three_d_array, n = 21){
+  
+  # storage list
+  the_list <- vector('list', length = dim(three_d_array)[3])
+  
+  # do extraction from array
+  for(i in seq_len(dim(three_d_array)[3])){
+    the_list[[i]] <- three_d_array[ , , i]
+  }
+  
+  # make into data frame
+  df1 <- data.frame(do.call('rbind', the_list))
+  
+  # label landmarks
+  df1$landmark <- rep(1:n, dim(three_d_array)[3])
+  
+  df1
+  
+}
+
 # use this function to make a set of 3d arrays, one for each genus
 gori_array <- L %>% keep(names(.) == 'gorilla') %>%  list_to_3d_array
 afar_array <- L %>% keep(names(.) == 'afarensis') %>%  list_to_3d_array
@@ -87,13 +111,11 @@ all_gpa_gpa_L_coords_df <-
 
 # inspect 3d plot
 plot_ly(all_gpa_gpa_L_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
-
-library(geomorph) # wont work in rstudio.cloud
 
 # Obtain Procrustes coordinates and inspect
 
@@ -128,28 +150,6 @@ summary(trog_array_gpa)
 
 Let's have a look at the 3d plots of the GPA coords. We need to find the specimens that have points that don't cluster tightly with the GPA and exclude those specimens from the sample. 
 
-```{r}
-# function to reshape the data for plotly
-three_d_array_to_data_frame <- function(three_d_array, n = 21){
-  
-  # storage list
-  the_list <- vector('list', length = dim(three_d_array)[3])
-  
-  # do extraction from array
-  for(i in seq_len(dim(three_d_array)[3])){
-    the_list[[i]] <- three_d_array[ , , i]
-  }
-  
-  # make into data frame
-  df1 <- data.frame(do.call('rbind', the_list))
-  
-  # label landmarks
-  df1$landmark <- rep(1:n, dim(three_d_array)[3])
-  
-  df1
-  
-}
-```
 
 ```{r}
 library(plotly)
@@ -159,9 +159,9 @@ gori_array_gpa_coords_df <-
   three_d_array_to_data_frame(gori_array_gpa$coords )
 
 plot_ly(gori_array_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -174,9 +174,9 @@ afar_array_gpa_coords_df <-
   three_d_array_to_data_frame(afar_array_gpa$coords )
 
 plot_ly(afar_array_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -189,9 +189,9 @@ nean_array_gpa_coords_df <-
   three_d_array_to_data_frame(nean_array_gpa$coords )
 
 plot_ly(nean_array_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -204,9 +204,9 @@ sapi_array_gpa_coords_df <-
   three_d_array_to_data_frame(sapi_array_gpa$coords )
 
 plot_ly(sapi_array_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -219,9 +219,9 @@ nale_array_gpa_coords_df <-
   three_d_array_to_data_frame(nale_array_gpa$coords )
 
 plot_ly(nale_array_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -281,9 +281,9 @@ gori_array_dropped_gpa_coords_df <-
                               n = n_after_dropped)
 
 plot_ly(gori_array_dropped_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -295,9 +295,9 @@ afar_array_dropped_gpa_coords_df <-
                               n = n_after_dropped)
 
 plot_ly(afar_array_dropped_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -309,9 +309,9 @@ nean_array_dropped_gpa_coords_df <-
                               n = n_after_dropped)
 
 plot_ly(nean_array_dropped_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
@@ -337,9 +337,9 @@ nale_array_dropped_gpa_coords_df <-
                               n = n_after_dropped)
 
 plot_ly(nale_array_dropped_gpa_coords_df,
-        x = ~X1,
-        y = ~X2,
-        z = ~X3,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
         text = ~paste('Landmark: ', landmark)) %>% 
    add_markers() 
 ```
