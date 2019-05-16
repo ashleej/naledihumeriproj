@@ -74,6 +74,23 @@ nale_array <- L %>% keep(names(.) == 'naledi') %>%  list_to_3d_array
 
 # compute GPA for each group as a quality check
 
+# compute GPA
+all_specimens_3d_arra_L <- list_to_3d_array(L)
+all_gpa_L <- gpagen(all_specimens_3d_arra_L)
+
+# convert to data frame
+all_gpa_gpa_L_coords_df <- 
+  three_d_array_to_data_frame(all_gpa_L$coords, 
+                              n = 21)
+
+# inspect 3d plot
+plot_ly(all_gpa_gpa_L_coords_df,
+        x = ~X1,
+        y = ~X2,
+        z = ~X3,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() 
+
 library(geomorph) # wont work in rstudio.cloud
 
 # Obtain Procrustes coordinates and inspect
@@ -205,7 +222,6 @@ So, how about we drop these landmarks from all and try the GPA again?
 1, 5, 6, 7, 13 
 
 ```{r}
-
 landmarks_to_drop <- c(1, 5, 6, 7, 13)
 n_after_dropped <- 21 - length(landmarks_to_drop) 
 
@@ -331,7 +347,7 @@ n_after_dropped_second <-  21 - length(landmarks_to_drop_second)
 L_dropped_some_landmarks_second <- 
   map(L, ~.x %>% 
             as.data.frame %>% 
-            slice(-landmarks_to_drop_second))
+            slice(-sort(landmarks_to_drop_second)))
 # compute GPA
 all_specimens_3d_array <- list_to_3d_array(L_dropped_some_landmarks_second)
 all_gpa <- gpagen(all_specimens_3d_array)
@@ -394,11 +410,71 @@ plot_ly(pca_3,
         z = ~PC3,
         text = ~paste('Specimen: ', specimen)) %>% 
    add_markers()
-  
-  
+```
+
+Try a different approach 
+
+```{r}
+PCA <- plotTangentSpace(shapedata)
+
+P1 <- t(matrix(PCA$rotation[,1], 2, )) # change 2 to 3 for 3D
+diag(tcrossprod(P1))/sum(diag(tcrossprod(P1))) # relative portions along PC 1
+
+P2 <- t(matrix(PCA$rotation[,2], 2, )) # change 2 to 3 for 3D
+diag(tcrossprod(P2))/sum(diag(tcrossprod(P2))) # relative portions along PC 2
+
+our_rotate_dt <- 
+  three_d_array_to_data_frame(out$rotated, n = 10) %>% 
+  mutate(taxa = unlist(map(gp, ~rep(as.character(.x), 10))))
+
+our_rotate_dt_pca <- 
+our_rotate_dt %>% 
+  select(-landmark, -taxa) %>% 
+  prcomp()
   
 
+L_dropped_some_landmarks_second_df <- 
+  bind_rows(L_dropped_some_landmarks_second, 
+            .id = 'taxa')
+
+
+
+
+library(Momocs)
+
+Lkds <- 
+Ldk(L_dropped_some_landmarks_second, 
+    fac = enframe(names(L_dropped_some_landmarks_second)))
+
+pile(Lkds)
+Lkds_gpa <- fgProcrustes(Lkds, tol=0.1) 
+pile(Lkds_gpa, 
+     f = as.factor(names(L_dropped_some_landmarks_second))) 
+
+
+stack(wings)
+fgProcrustes(wings, tol=0.1) %>% pile()
+
+
+
+
+#_---
+library(FactoMineR)
+
+
+
+fm_gpa <- 
+GPA(L_dropped_some_landmarks_second_df[, 2:4], 
+    tolerance=10^-10, 
+    nbiteration=200, 
+    scale=TRUE, 
+    group = c(1:2), 
+    name.group = NULL, 
+    graph = TRUE, 
+    axes = c(1,2))
+
 ```
+
 
 
 
