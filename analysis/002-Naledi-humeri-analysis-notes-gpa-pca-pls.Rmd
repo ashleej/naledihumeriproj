@@ -71,6 +71,8 @@ afar_array <- L %>% keep(names(.) == 'afarensis') %>%  list_to_3d_array
 nean_array <- L %>% keep(names(.) == 'neanderthalensis') %>%  list_to_3d_array
 sapi_array <- L %>% keep(names(.) == 'sapiens') %>%  list_to_3d_array
 nale_array <- L %>% keep(names(.) == 'naledi') %>%  list_to_3d_array
+sedi_array <- L %>% keep(names(.) == 'sediba') %>% list_to_3d_array
+trog_array <- L %>% keep(names(.) == 'troglodytes') %>% list_to_3d_array
 
 # compute GPA for each group as a quality check
 
@@ -114,6 +116,14 @@ summary(sapi_array_gpa)
 # naledi
 nale_array_gpa <- gpagen(nale_array)
 summary(nale_array_gpa)
+
+# sediba
+sedi_array_gpa <- gpagen(sedi_array)
+summary(sedi_array_gpa)
+
+# troglodytes
+trog_array_gpa <- gpagen(trog_array)
+summary(trog_array_gpa)
 ```
 
 Let's have a look at the 3d plots of the GPA coords. We need to find the specimens that have points that don't cluster tightly with the GPA and exclude those specimens from the sample. 
@@ -204,7 +214,7 @@ plot_ly(sapi_array_gpa_coords_df,
 Sapiens: all look good!
 
 ```{r}
-# sapiens
+# naledi
 nale_array_gpa_coords_df <- 
   three_d_array_to_data_frame(nale_array_gpa$coords )
 

@@ -1,5 +1,5 @@
 ---
-title: 'Notes on H. Naledi Analysis: H. neanderthalensis'
+title: "Notes on H. Naledi Analysis: A. sediba"
 output: html_document
 ---
 
@@ -18,7 +18,7 @@ library(stringr)
 library(purrr)
 ```
 
-Assume that we have downloaded all the files from g-drive, let's check the H. neanderthalensis data
+Assume that we have downloaded all the files from g-drive, let's check the A. sediba data
 
 ```{r}
 # get list of the local data files that we prepared earlier
@@ -26,16 +26,16 @@ nested_df_of_pp_data <-
   read_rds(here("analysis", "data", "derived-data", "nested_df_of_pp_data.rds"))
 
 # read these into R, and assign names to each data frame
-nested_df_of_pp_data_H_neanderthalensis <- 
+nested_df_of_pp_data_A_sediba <- 
   nested_df_of_pp_data %>% 
-  filter(str_detect(specimen, "neanderthalensis.*t2"))
+  filter(str_detect(specimen, "sediba.*t2"))
 ```
 
 Let's try to look at all of them
 
 ```{r}
-list_of_plots_H_neanderthalensis  <- 
-nested_df_of_pp_data_H_neanderthalensis %>% 
+list_of_plots_A_sediba  <- 
+nested_df_of_pp_data_A_sediba %>% 
   mutate(plotly = map2(data, specimen, 
                        ~plot_ly(.x,
          x = .x$x, 
@@ -47,5 +47,4 @@ nested_df_of_pp_data_H_neanderthalensis %>%
          add_markers() %>% 
   layout(scene = list(xaxis=list(title = .y)))))
 
-htmltools::tagList(list_of_plots_H_neanderthalensis$plotly)
-```
+htmltools::tagList(list_of_plots_A_sediba$plotly)

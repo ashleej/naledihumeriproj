@@ -9,7 +9,8 @@ opts_chunk$set(echo = TRUE,
                warning = FALSE,
                message = FALSE)
 
-library(tidyverse)
+library(purrr)
+library(tibble)
 library(here)
 ```
 
@@ -85,6 +86,8 @@ local_data_files <-
              full.names = TRUE)
 
 # read these into R, and assign names to each data frame
+library(dplyr)
+library(tidyr)
 nested_df_of_pp_data <- 
   map(local_data_files, 
       read.pp) %>% 
@@ -105,7 +108,7 @@ Take a quick look at one specimen:
 ```{r}
 library(plotly)
 nested_df_of_pp_data %>% 
-  filter(specimen == 'austro_afarensis_al-137-48a_21-landmarks.pp') %>% 
+  filter(specimen == 'austro_afarensis_al-137-48a_21-landmarks-t2.pp') %>% 
   unnest() %>% 
   plot_ly(.,
          x = .$x, 
@@ -117,7 +120,6 @@ nested_df_of_pp_data %>%
          add_markers() 
 ```
 
-One point is out of place here, we may need to exclude it. 
 
 
 
