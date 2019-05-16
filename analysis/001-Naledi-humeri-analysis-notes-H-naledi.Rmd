@@ -32,7 +32,13 @@ nested_df_of_pp_data_H_naledi <-
 
 # these landmarks need to be renamed to NA
 # homo_naledi_101-283_21-landmarks-t2.pp: 1, 2, 4, 15-18, 21
-nested_df_of_pp_data_H_naledi[[2]][[2]]
+nested_df_of_pp_data_H_naledi[[2]][[2]] <- 
+  nested_df_of_pp_data_H_naledi[[2]][[2]]  %>% 
+  mutate(x = ifelse(landmark %in% c(1, 2, 4, 15:18, 21), NA_integer_, x)) %>% 
+  mutate(y = ifelse(landmark %in% c(1, 2, 4, 15:18, 21), NA_integer_, y)) %>% 
+  mutate(z = ifelse(landmark %in% c(1, 2, 4, 15:18, 21), NA_integer_, z)) 
+
+nested_df_of_pp_data_H_naledi
 # homo_naledi_101-1240_21-landmarks-t2.pp: 2-4, 7-21
 nested_df_of_pp_data_H_naledi[[2]][[1]]
 # homo_naledi_101-466_21-landmarks-t2.pp: 3-5, 15-21
