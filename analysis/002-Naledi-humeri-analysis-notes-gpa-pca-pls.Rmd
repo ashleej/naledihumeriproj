@@ -119,34 +119,38 @@ plot_ly(all_gpa_gpa_L_coords_df,
 
 # Obtain Procrustes coordinates and inspect
 
+# landmarks we have from H. naledi: 
+h_naledi_common_lmks <- 6:14
+
+
 # gorilla
-gori_array_gpa <- gpagen(gori_array)
+gori_array_gpa <- gpagen(gori_array[h_naledi_common_lmks,,])
 summary(gori_array_gpa)
 
 # afarensis
-afar_array_gpa <- gpagen(afar_array)
+afar_array_gpa <- gpagen(afar_array[h_naledi_common_lmks,,])
 summary(afar_array_gpa)
 
 # neanderthals
-nean_array_gpa <- gpagen(nean_array)
+nean_array_gpa <- gpagen(nean_array[h_naledi_common_lmks,,])
 summary(nean_array_gpa)
 
 # sapiens
-sapi_array_gpa <- gpagen(sapi_array)
+sapi_array_gpa <- gpagen(sapi_array[h_naledi_common_lmks,,])
 summary(sapi_array_gpa)
 
 # naledi
 nale_array[nale_array == 0] <- NA # convert 0 to NA
-nale_array <- nale_array[6:14,,2:3] # subset the two specimens, and only their common landmarks
+nale_array <- nale_array[h_naledi_common_lmks,,2:3] # subset the two specimens, and only their common landmarks
 nale_array_gpa <- gpagen(nale_array)
 summary(nale_array_gpa)
 
 # sediba
-sedi_array_gpa <- gpagen(sedi_array)
+sedi_array_gpa <- gpagen(sedi_array[h_naledi_common_lmks,,])
 summary(sedi_array_gpa)
 
 # troglodytes
-trog_array_gpa <- gpagen(trog_array)
+trog_array_gpa <- gpagen(trog_array[h_naledi_common_lmks,,])
 summary(trog_array_gpa)
 ```
 
@@ -158,7 +162,7 @@ library(plotly)
 
 # gorilla
 gori_array_gpa_coords_df <- 
-  three_d_array_to_data_frame(gori_array_gpa$coords )
+  three_d_array_to_data_frame(gori_array_gpa$coords, n =  nrow(gori_array_gpa$coords[,,1]))
 
 plot_ly(gori_array_gpa_coords_df,
         x = ~X,
@@ -173,7 +177,7 @@ Gorilla: problems with landmark 1, 5, and 6
 ```{r}
 # afarensis
 afar_array_gpa_coords_df <- 
-  three_d_array_to_data_frame(afar_array_gpa$coords )
+  three_d_array_to_data_frame(afar_array_gpa$coords, nrow(afar_array_gpa$coords[,,1]) )
 
 plot_ly(afar_array_gpa_coords_df,
         x = ~X,
@@ -188,7 +192,7 @@ Afarensis:  problems with landmark 13
 ```{r}
 # neanderthals
 nean_array_gpa_coords_df <- 
-  three_d_array_to_data_frame(nean_array_gpa$coords )
+  three_d_array_to_data_frame(nean_array_gpa$coords,  n = nrow(nean_array_gpa$coords[,,1]))
 
 plot_ly(nean_array_gpa_coords_df,
         x = ~X,
@@ -203,7 +207,7 @@ Neanderthals: all look good!
 ```{r}
 # sapiens
 sapi_array_gpa_coords_df <- 
-  three_d_array_to_data_frame(sapi_array_gpa$coords )
+  three_d_array_to_data_frame(sapi_array_gpa$coords, n=  sapi_array_gpa$coords[,,1])
 
 plot_ly(sapi_array_gpa_coords_df,
         x = ~X,
@@ -228,6 +232,94 @@ plot_ly(nale_array_gpa_coords_df,
    add_markers() 
 ```
 
+Now combine all and PCA
+
+```{r}
+
+library(abind)
+all_specimens <- 
+abind(
+  gori_array[h_naledi_common_lmks, , ], # 5
+  afar_array[h_naledi_common_lmks, , ], # 3
+  nean_array[h_naledi_common_lmks, , ], # 5
+  sapi_array[h_naledi_common_lmks, , ], # 5
+  nale_array,                           # 2
+  sedi_array[h_naledi_common_lmks, , ], # 1
+  trog_array[h_naledi_common_lmks, , ]  # 5
+)
+
+all_specimens_names <- 
+  c(rep('gorilla', 5),
+    rep('afar', 3),
+    rep('neander', 5),
+    rep('sapiens', 5),
+    rep('naledi', 2),
+    rep('sediba', 1),
+    rep('troglod', 5))
+
+all_gpa <- gpagen(all_specimens)
+
+# convert to data frame
+all_gpa_gpa_coords_df <- 
+  three_d_array_to_data_frame(all_gpa$coords, 
+                              n = nrow(all_gpa$coords[,,1]))
+
+axx <- list(
+  nticks = 4,
+  range = c(-1,1)
+)
+
+axy <- list(
+  nticks = 4,
+  range = c(-1,1)
+)
+
+axz <- list(
+  nticks = 4,
+  range = c(-1,1)
+)
+
+# inspect 3d plot
+plot_ly(all_gpa_gpa_coords_df,
+        x = ~X,
+        y = ~Y,
+        z = ~Z,
+        text = ~paste('Landmark: ', landmark)) %>% 
+   add_markers() %>%  
+ layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
+
+
+```
+
+
+Let's try the PCA
+
+```{r}
+# with the shapes pkg
+# Generalised Procrustes analysis & PCA
+library(shapes)
+out <- procGPA(all_specimens) # 10 landmarks, 3 dimensions, 40 specimens
+
+# The default plot for the 3D PCA is a plot of the mean shape, with vectors drawn to the mean + 3sd 
+# shapepca(out)
+
+# Here we plot the first two principal components 
+shapes_plot <- data.frame(PC1 = out$rawscores[,1], 
+                          PC2 = out$rawscores[,2], 
+                          taxa = as.factor(all_specimens_names))
+
+library(ggplot2)
+ggplot(shapes_plot, 
+       aes(x = PC1, 
+           y = PC2, 
+           color=taxa)) + 
+  geom_point()
+```
+
+
+
+## Below here is old stuff ------------------ no need to go beyond here --------
+
 Naledi: problems with lanmdmark 7
 
 So, how about we drop these landmarks from all and try the GPA again?
@@ -248,7 +340,7 @@ gori_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'gorilla') %
 afar_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'afarensis') %>%  list_to_3d_array
 nean_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'neanderthalensis') %>%  list_to_3d_array
 sapi_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'sapiens') %>%  list_to_3d_array
-nale_array_dropped <- L_dropped_some_landmarks %>% keep(names(.) == 'naledi') %>%  list_to_3d_array
+nale_array_dropped <-  nale_array[-c(1,2,8),,] # starts at L6, so we drop 6,7,13, we drop 1,2,8
 
 # compute GPA for each group as a quality check
 
@@ -336,7 +428,7 @@ plot_ly(sapi_array_dropped_gpa_coords_df,
 # naledi
 nale_array_dropped_gpa_coords_df <- 
   three_d_array_to_data_frame(nale_array_dropped_gpa$coords, 
-                              n = n_after_dropped)
+                              n = 6)
 
 plot_ly(nale_array_dropped_gpa_coords_df,
         x = ~X,
