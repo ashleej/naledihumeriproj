@@ -136,6 +136,8 @@ sapi_array_gpa <- gpagen(sapi_array)
 summary(sapi_array_gpa)
 
 # naledi
+nale_array[nale_array == 0] <- NA # convert 0 to NA
+nale_array <- nale_array[6:14,,2:3] # subset the two specimens, and only their common landmarks
 nale_array_gpa <- gpagen(nale_array)
 summary(nale_array_gpa)
 
@@ -216,7 +218,7 @@ Sapiens: all look good!
 ```{r}
 # naledi
 nale_array_gpa_coords_df <- 
-  three_d_array_to_data_frame(nale_array_gpa$coords )
+  three_d_array_to_data_frame(nale_array_gpa$coords, n =  nrow(nale_array_gpa$coords[,,1]))
 
 plot_ly(nale_array_gpa_coords_df,
         x = ~X,
